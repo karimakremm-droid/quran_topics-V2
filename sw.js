@@ -1,4 +1,4 @@
-const CACHE = 'quran-v5';
+const CACHE = 'quran-v6';
 const PRECACHE = [
   '/',
   '/index.html',
