@@ -9634,8 +9634,8 @@ const mE = () => {
   }, [p, w]);
   x.useEffect(() => {
     let I = true;
-    return Promise.all([FS(), zS(), Pg()]).then(([z, N, D]) => {
-      I && (r(null), t({ categories: z, ayahs: N, tafsir: {}, pageMap: D }));
+    return Promise.all([FS(), zS(), Pg(), $S()]).then(([z, N, D, T]) => {
+      I && (r(null), t({ categories: z, ayahs: N, tafsir: T || {}, pageMap: D }));
     }).catch((z) => {
       console.error("Failed to load Quran data", z), I && r("\u062A\u0639\u0630\u0631 \u062A\u062D\u0645\u064A\u0644 \u0627\u0644\u0628\u064A\u0627\u0646\u0627\u062A.");
     }), () => {

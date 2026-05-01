@@ -2,26 +2,73 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>مواضيع القرآن الكريم</title>
     <meta name="description" content="9,871 آية في 1,130 موضوع مع 6 تفاسير" />
+
+    <!-- Android Chrome PWA -->
     <meta name="theme-color" content="#1a6b3a" />
     <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- iOS PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="مواضيع القرآن" />
+    <link rel="apple-touch-startup-image" href="./icon-512.png" />
+
+    <!-- Icons & Manifest -->
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" type="image/x-icon" href="./favicon.ico" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+
     <script type="module" crossorigin src="./assets/index-JBEEVQCW.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-Mq0mt_p_.css">
+
     <style>
-      .ayah-highlight{outline:2px solid #c9a84c!important;border-radius:12px;animation:_ahpulse 1.5s ease;}
-      @keyframes _ahpulse{0%,100%{background:transparent}30%{background:rgba(201,168,76,0.18)}}
+      /* ── Base resets ── */
+      *, *::before, *::after { box-sizing: border-box; }
+      html {
+        height: 100%;
+        overscroll-behavior: none;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+      body {
+        height: 100%;
+        margin: 0;
+        overscroll-behavior: none;
+        /* iOS safe areas */
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+      #root {
+        height: 100%;
+        min-height: -webkit-fill-available;
+        min-height: 100dvh;
+      }
+      /* iOS momentum scrolling */
+      * { -webkit-overflow-scrolling: touch; }
+      /* Prevent double-tap zoom on interactive elements */
+      button, a, [role="button"] { touch-action: manipulation; }
+
+      /* ── Ayah highlight animation ── */
+      .ayah-highlight {
+        outline: 2px solid #c9a84c !important;
+        border-radius: 12px;
+        animation: _ahpulse 1.5s ease;
+      }
+      @keyframes _ahpulse {
+        0%, 100% { background: transparent }
+        30% { background: rgba(201,168,76,0.18) }
+      }
     </style>
   </head>
   <body>
     <div id="root"></div>
     <script>
+      // Register service worker for offline support (Android + iOS)
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () =>
           navigator.serviceWorker.register('./sw.js').catch(() => {})
