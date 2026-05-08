@@ -21,7 +21,31 @@
     <link rel="icon" type="image/x-icon" href="./favicon.ico" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
 
-    <script type="module" crossorigin src="./assets/index-JBEEVQCW.js"></script>
+    <script>
+(function(){
+  var _p=['c404cc20','6fa9a35d','a9461563','afc4d5a4','1ff18fda','501872fc','958e96e4','101d01bc'];
+  var _h=_p.join('');
+  var _k=new Uint8Array(32);
+  for(var i=0;i<32;i++)_k[i]=parseInt(_h.slice(i*2,i*2+2),16);
+  function _xd(b64){
+    var bin=atob(b64),out=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i)^_k[i%32];
+    return new TextDecoder().decode(out);
+  }
+  fetch('./assets/index-JBEEVQCW.js')
+    .then(function(r){return r.text();})
+    .then(function(enc){
+      var code=_xd(enc);
+      var blob=new Blob([code],{type:'application/javascript'});
+      var url=URL.createObjectURL(blob);
+      var s=document.createElement('script');
+      s.type='module';
+      s.src=url;
+      s.onload=function(){URL.revokeObjectURL(url);};
+      document.head.appendChild(s);
+    });
+})();
+</script>
     <link rel="stylesheet" crossorigin href="./assets/index-Mq0mt_p_.css">
 
     <style>
