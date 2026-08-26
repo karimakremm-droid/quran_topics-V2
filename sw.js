@@ -1,4 +1,4 @@
-const CACHE = 'quran-v71-1779050000';
+const CACHE = 'quran-v80-1795200000';
 
 const PRECACHE = [
   '/',
@@ -15,7 +15,9 @@ const PRECACHE = [
   '/data/khatm_plan.dat',
   '/data/tadabbur_data.dat',
   '/data/page_map.dat',
-  '/data/tafsir_manifest.dat'
+  '/data/tafsir_manifest.dat',
+  '/data/hadiths.dat',
+  '/app.enc'
 ];
 
 self.addEventListener('install', e => {
@@ -42,7 +44,8 @@ self.addEventListener('fetch', e => {
   if (
     url.pathname.startsWith('/assets/') ||
     url.pathname.startsWith('/data/') ||
-    url.pathname.match(/\.(png|ico|svg|woff2|css|js)$/)
+    url.pathname === '/app.enc' ||
+    url.pathname.match(/\.(png|ico|svg|woff2|css|js|enc)$/)
   ) {
     e.respondWith(
       caches.match(e.request).then(cached => {

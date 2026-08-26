@@ -1,103 +1,71 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>مواضيع القرآن الكريم</title>
-    <meta name="description" content="9,871 آية في 1,130 موضوع مع 6 تفاسير" />
-
-    <!-- Android Chrome PWA -->
-    <meta name="theme-color" content="#1a6b3a" />
-    <meta name="mobile-web-app-capable" content="yes" />
-
-    <!-- iOS PWA -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="مواضيع القرآن" />
-    <link rel="apple-touch-startup-image" href="./icon-512.png" />
-
-    <!-- Icons & Manifest -->
-    <link rel="manifest" href="./manifest.json" />
-    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
-    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-
-    <script>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>مواضيع القرآن الكريم</title>
+<style>
+  html,body{height:100%;margin:0;background:#fdf6e3;}
+  #_bl{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:10px;font-family:Tajawal,sans-serif;color:#1a6b3a;}
+  #_bl .s{width:36px;height:36px;border:3px solid #e6dcc0;border-top-color:#1a6b3a;
+    border-radius:50%;animation:_sp 0.8s linear infinite;}
+  @keyframes _sp{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div id="_bl"><div class="s"></div><div>جارٍ التحميل...</div></div>
+<script>
 (function(){
-  var _p=['c404cc20','6fa9a35d','a9461563','afc4d5a4','1ff18fda','501872fc','958e96e4','101d01bc'];
-  var _h=_p.join('');
-  var _k=new Uint8Array(32);
-  for(var i=0;i<32;i++)_k[i]=parseInt(_h.slice(i*2,i*2+2),16);
-  function _xd(b64){
-    var bin=atob(b64),out=new Uint8Array(bin.length);
-    for(var i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i)^_k[i%32];
-    return new TextDecoder().decode(out);
-  }
-  fetch('./assets/index-JBEEVQCW.js')
-    .then(function(r){return r.text();})
-    .then(function(enc){
-      var code=_xd(enc);
-      var blob=new Blob([code],{type:'application/javascript'});
-      var url=URL.createObjectURL(blob);
-      var s=document.createElement('script');
-      s.type='module';
-      s.src=url;
-      s.onload=function(){URL.revokeObjectURL(url);};
-      document.head.appendChild(s);
+  var _p1=[173,126,205,41,178,56,208,185];
+  var _p2=[193,147,194,206,51,191,124,56];
+  var _p3=[102,140,57,78,157,62,80,121];
+  var _p4=[141,19,182,96,219,111,56,12];
+  var _expectedHash = "4ab912833951aa492f404e28b4730e43e69daa8a14e42781879278d21c977287";
+  function _bk(){
+    var k=new Uint8Array(32);
+    [_p1,_p2,_p3,_p4].forEach(function(seg,si){
+      for(var i=0;i<8;i++)k[si*8+i]=seg[i];
     });
+    return k;
+  }
+  function _toHex(buf){
+    var b = new Uint8Array(buf);
+    var s = "";
+    for (var i=0;i<b.length;i++) s += b[i].toString(16).padStart(2,"0");
+    return s;
+  }
+  function _fail(msg){
+    document.getElementById('_bl').innerHTML =
+      '<div style="text-align:center;padding:20px;">' + msg + '</div>';
+  }
+  async function _boot(){
+    try{
+      var res = await fetch('./app.enc');
+      var buf = await res.arrayBuffer();
+      if (crypto.subtle.digest) {
+        var hashBuf = await crypto.subtle.digest('SHA-256', buf);
+        var actualHash = _toHex(hashBuf);
+        if (actualHash !== _expectedHash) {
+          _fail('تعذّر التحقق من سلامة الملفات.<br>احذف بيانات المتصفح لهذا الموقع وأعد المحاولة، أو تحقق من الاتصال.');
+          return;
+        }
+      }
+      var bytes = new Uint8Array(buf);
+      var iv = bytes.slice(0,16);
+      var ct = bytes.slice(16);
+      var cryptoKey = await crypto.subtle.importKey('raw', _bk(), {name:'AES-CBC'}, false, ['decrypt']);
+      var plainBuf = await crypto.subtle.decrypt({name:'AES-CBC', iv: iv}, cryptoKey, ct);
+      var html = new TextDecoder('utf-8').decode(plainBuf);
+      document.open();
+      document.write(html);
+      document.close();
+    } catch(e) {
+      _fail('تعذّر تحميل التطبيق.<br>تحقق من الاتصال بالإنترنت وأعد المحاولة.');
+    }
+  }
+  _boot();
 })();
 </script>
-    <link rel="stylesheet" crossorigin href="./assets/index-Mq0mt_p_.css">
-
-    <style>
-      /* ── Base resets ── */
-      *, *::before, *::after { box-sizing: border-box; }
-      html {
-        height: 100%;
-        overscroll-behavior: none;
-        -webkit-text-size-adjust: 100%;
-        text-size-adjust: 100%;
-      }
-      body {
-        height: 100%;
-        margin: 0;
-        overscroll-behavior: none;
-        /* iOS safe areas */
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
-        padding-left: env(safe-area-inset-left);
-        padding-right: env(safe-area-inset-right);
-      }
-      #root {
-        height: 100%;
-        min-height: -webkit-fill-available;
-        min-height: 100dvh;
-      }
-      /* iOS momentum scrolling */
-      * { -webkit-overflow-scrolling: touch; }
-      /* Prevent double-tap zoom on interactive elements */
-      button, a, [role="button"] { touch-action: manipulation; }
-
-      /* ── Ayah highlight animation ── */
-      .ayah-highlight {
-        outline: 2px solid #c9a84c !important;
-        border-radius: 12px;
-        animation: _ahpulse 1.5s ease;
-      }
-      @keyframes _ahpulse {
-        0%, 100% { background: transparent }
-        30% { background: rgba(201,168,76,0.18) }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script>
-      // Register service worker for offline support (Android + iOS)
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () =>
-          navigator.serviceWorker.register('./sw.js').catch(() => {})
-        );
-      }
-    </script>
-  </body>
+</body>
 </html>
