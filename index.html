@@ -4,6 +4,18 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>مواضيع القرآن الكريم</title>
+<!-- These two are the app's largest assets and their filenames are fixed and
+     known even before app.enc is decrypted (only their CONTENT needed the
+     encrypted-page wrapper, not their existence/path). Preloading them here
+     lets the browser start fetching both IN PARALLEL with the app.enc
+     fetch+integrity-check+decrypt sequence below, instead of only
+     discovering them afterward once the decrypted HTML is written — this
+     removes a full serialized round-trip from first paint, which matters
+     most on slow connections. Safe: if the filenames ever change in a future
+     rebuild, these hints simply go unused (browsers ignore unmatched
+     preloads) — the actual page still works exactly the same either way. -->
+<link rel="preload" as="style" href="./assets/index-Mq0mt_p_.css" fetchpriority="high" />
+<link rel="preload" as="fetch" href="./assets/index-JBEEVQCW.js" crossorigin="anonymous" fetchpriority="high" />
 <style>
   html,body{height:100%;margin:0;background:#fdf6e3;}
   #_bl{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
