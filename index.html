@@ -2,24 +2,22 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
 <title>مواضيع القرآن الكريم</title>
-<!-- These two are the app's largest assets and their filenames are fixed and
-     known even before app.enc is decrypted (only their CONTENT needed the
-     encrypted-page wrapper, not their existence/path). Preloading them here
-     lets the browser start fetching both IN PARALLEL with the app.enc
-     fetch+integrity-check+decrypt sequence below, instead of only
-     discovering them afterward once the decrypted HTML is written — this
-     removes a full serialized round-trip from first paint, which matters
-     most on slow connections. Safe: if the filenames ever change in a future
-     rebuild, these hints simply go unused (browsers ignore unmatched
-     preloads) — the actual page still works exactly the same either way. -->
-<link rel="preload" as="style" href="./assets/index-Mq0mt_p_.css" fetchpriority="high" />
-<link rel="preload" as="fetch" href="./assets/index-JBEEVQCW.js" crossorigin="anonymous" fetchpriority="high" />
+<meta name="description" content="9,871 آية في 1,130 موضوع مع 6 تفاسير، المصحف الكامل، معجزات القرآن والأحاديث النبوية — بدون إنترنت." />
+<meta name="theme-color" content="#1a6b3a" />
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" href="./favicon.ico" />
+<link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+<!-- Start fetching the encrypted payload immediately, in parallel with parsing.
+     app.enc is now gzip-compressed BEFORE encryption and the webfonts were
+     moved out of it into ./assets/fonts/*.woff2, so the critical first
+     download dropped from ~1.45 MB to ~0.49 MB. -->
+<link rel="preload" as="fetch" href="./app.enc" crossorigin="anonymous" fetchpriority="high" />
 <style>
   html,body{height:100%;margin:0;background:#fdf6e3;}
   #_bl{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-    flex-direction:column;gap:10px;font-family:Tajawal,sans-serif;color:#1a6b3a;}
+    flex-direction:column;gap:10px;font-family:system-ui,sans-serif;color:#1a6b3a;}
   #_bl .s{width:36px;height:36px;border:3px solid #e6dcc0;border-top-color:#1a6b3a;
     border-radius:50%;animation:_sp 0.8s linear infinite;}
   @keyframes _sp{to{transform:rotate(360deg);}}
@@ -29,11 +27,11 @@
 <div id="_bl"><div class="s"></div><div>جارٍ التحميل...</div></div>
 <script>
 (function(){
-  var _p1=[173,126,205,41,178,56,208,185];
-  var _p2=[193,147,194,206,51,191,124,56];
-  var _p3=[102,140,57,78,157,62,80,121];
-  var _p4=[141,19,182,96,219,111,56,12];
-  var _expectedHash = "ab5c00e96ef24a2ee981d5def0f27efed8ddfbe075b62ced2148ae9eac45eb1d";
+  var _p1=[155,187,14,163,17,46,186,222];
+  var _p2=[26,164,161,172,123,90,212,247];
+  var _p3=[27,13,182,2,128,64,250,6];
+  var _p4=[22,59,96,149,72,226,223,181];
+  var _expectedHash = "a3cd2bf813ef74ceb2f1752cebb53d632d3a369112507804ecc1b1f5e96ac9d9";
   function _bk(){
     var k=new Uint8Array(32);
     [_p1,_p2,_p3,_p4].forEach(function(seg,si){
@@ -42,23 +40,40 @@
     return k;
   }
   function _toHex(buf){
-    var b = new Uint8Array(buf);
-    var s = "";
-    for (var i=0;i<b.length;i++) s += b[i].toString(16).padStart(2,"0");
+    var b=new Uint8Array(buf), s="";
+    for(var i=0;i<b.length;i++) s += b[i].toString(16).padStart(2,"0");
     return s;
   }
   function _fail(msg){
-    document.getElementById('_bl').innerHTML =
-      '<div style="text-align:center;padding:20px;">' + msg + '</div>';
+    var el=document.getElementById('_bl');
+    if(el) el.innerHTML='<div style="text-align:center;padding:20px;">'+msg+'</div>';
+  }
+  function _loadScript(src){
+    return new Promise(function(res,rej){
+      var s=document.createElement('script');
+      s.src=src; s.onload=res; s.onerror=rej;
+      document.head.appendChild(s);
+    });
+  }
+  // gzip inflate: native DecompressionStream where available (Chrome 80+,
+  // Firefox 113+, Safari 16.4+), small fflate fallback everywhere else.
+  async function _gunzip(buf){
+    if (typeof DecompressionStream === 'function') {
+      var ds = new DecompressionStream('gzip');
+      var stream = new Blob([buf]).stream().pipeThrough(ds);
+      return await new Response(stream).arrayBuffer();
+    }
+    if (typeof fflate === 'undefined') await _loadScript('./vendor/fflate.js');
+    return fflate.gunzipSync(new Uint8Array(buf)).buffer;
   }
   async function _boot(){
     try{
-      var res = await fetch('./app.enc');
+      var res = await fetch('./app.enc', {credentials:'omit'});
+      if(!res.ok && res.status !== 0) throw new Error('http '+res.status);
       var buf = await res.arrayBuffer();
-      if (crypto.subtle.digest) {
+      if (crypto.subtle && crypto.subtle.digest) {
         var hashBuf = await crypto.subtle.digest('SHA-256', buf);
-        var actualHash = _toHex(hashBuf);
-        if (actualHash !== _expectedHash) {
+        if (_toHex(hashBuf) !== _expectedHash) {
           _fail('تعذّر التحقق من سلامة الملفات.<br>احذف بيانات المتصفح لهذا الموقع وأعد المحاولة، أو تحقق من الاتصال.');
           return;
         }
@@ -67,7 +82,8 @@
       var iv = bytes.slice(0,16);
       var ct = bytes.slice(16);
       var cryptoKey = await crypto.subtle.importKey('raw', _bk(), {name:'AES-CBC'}, false, ['decrypt']);
-      var plainBuf = await crypto.subtle.decrypt({name:'AES-CBC', iv: iv}, cryptoKey, ct);
+      var gzBuf = await crypto.subtle.decrypt({name:'AES-CBC', iv: iv}, cryptoKey, ct);
+      var plainBuf = await _gunzip(gzBuf);
       var html = new TextDecoder('utf-8').decode(plainBuf);
       document.open();
       document.write(html);
@@ -77,6 +93,11 @@
     }
   }
   _boot();
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('./sw.js').catch(function(){});
+    });
+  }
 })();
 </script>
 </body>
