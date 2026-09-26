@@ -13,7 +13,7 @@
      app.enc is now gzip-compressed BEFORE encryption and the webfonts were
      moved out of it into ./assets/fonts/*.woff2, so the critical first
      download dropped from ~1.45 MB to ~0.49 MB. -->
-<link rel="preload" as="fetch" href="./app.enc" crossorigin="anonymous" fetchpriority="high" />
+<link rel="preload" as="fetch" href="./app.enc?v=89" crossorigin="anonymous" fetchpriority="high" />
 <style>
   html,body{height:100%;margin:0;background:#fdf6e3;}
   #_bl{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
@@ -31,7 +31,7 @@
   var _p2=[26,164,161,172,123,90,212,247];
   var _p3=[27,13,182,2,128,64,250,6];
   var _p4=[22,59,96,149,72,226,223,181];
-  var _expectedHash = "a3cd2bf813ef74ceb2f1752cebb53d632d3a369112507804ecc1b1f5e96ac9d9";
+  var _expectedHash = "540f371af2332d4e560e1952fcd4d3a00268bdf11fcec941c7aa229907dc9b4a";
   function _bk(){
     var k=new Uint8Array(32);
     [_p1,_p2,_p3,_p4].forEach(function(seg,si){
@@ -68,7 +68,7 @@
   }
   async function _boot(){
     try{
-      var res = await fetch('./app.enc', {credentials:'omit'});
+      var res = await fetch('./app.enc?v=89', {credentials:'omit', cache:'no-store'});
       if(!res.ok && res.status !== 0) throw new Error('http '+res.status);
       var buf = await res.arrayBuffer();
       if (crypto.subtle && crypto.subtle.digest) {
@@ -92,6 +92,17 @@
       _fail('تعذّر تحميل التطبيق.<br>تحقق من الاتصال بالإنترنت وأعد المحاولة.');
     }
   }
+  // One-time upgrade for visitors with an older offline installation. Preserve their
+  // language, reading progress and bookmarks; only invalidate obsolete app caches.
+  try {
+    if (localStorage.getItem('quran_site_version') !== '89') {
+      localStorage.setItem('quran_site_version', '89');
+      if ('caches' in window) caches.keys().then(function(keys){
+        return Promise.all(keys.filter(function(k){return /^quran-v/.test(k) && k !== 'quran-v89-shell-1';})
+          .map(function(k){return caches.delete(k);}));
+      }).catch(function(){});
+    }
+  } catch(e) { /* private browsing can disable storage */ }
   _boot();
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
