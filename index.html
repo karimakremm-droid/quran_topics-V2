@@ -13,7 +13,7 @@
      app.enc is now gzip-compressed BEFORE encryption and the webfonts were
      moved out of it into ./assets/fonts/*.woff2, so the critical first
      download dropped from ~1.45 MB to ~0.49 MB. -->
-<link rel="preload" as="fetch" href="./app.enc?v=89" crossorigin="anonymous" fetchpriority="high" />
+<link rel="preload" as="fetch" href="./app.enc?v=99" crossorigin="anonymous" fetchpriority="high" />
 <style>
   html,body{height:100%;margin:0;background:#fdf6e3;}
   #_bl{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
@@ -31,7 +31,7 @@
   var _p2=[26,164,161,172,123,90,212,247];
   var _p3=[27,13,182,2,128,64,250,6];
   var _p4=[22,59,96,149,72,226,223,181];
-  var _expectedHash = "540f371af2332d4e560e1952fcd4d3a00268bdf11fcec941c7aa229907dc9b4a";
+  var _expectedHash = "a5a9365a96f0dd7d1afa19dba6c20a67266e5540d9262ef5308aef0662f5c8b9";
   function _bk(){
     var k=new Uint8Array(32);
     [_p1,_p2,_p3,_p4].forEach(function(seg,si){
@@ -68,7 +68,7 @@
   }
   async function _boot(){
     try{
-      var res = await fetch('./app.enc?v=89', {credentials:'omit', cache:'no-store'});
+      var res = await fetch('./app.enc?v=99', {credentials:'omit', cache:'no-store'});
       if(!res.ok && res.status !== 0) throw new Error('http '+res.status);
       var buf = await res.arrayBuffer();
       if (crypto.subtle && crypto.subtle.digest) {
@@ -95,20 +95,68 @@
   // One-time upgrade for visitors with an older offline installation. Preserve their
   // language, reading progress and bookmarks; only invalidate obsolete app caches.
   try {
-    if (localStorage.getItem('quran_site_version') !== '89') {
-      localStorage.setItem('quran_site_version', '89');
+    if (localStorage.getItem('quran_site_version') !== '99') {
+      localStorage.setItem('quran_site_version', '99');
       if ('caches' in window) caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){return /^quran-v/.test(k) && k !== 'quran-v89-shell-1';})
+        return Promise.all(keys.filter(function(k){return /^quran-v/.test(k) && k !== 'quran-v99-shell-1';})
           .map(function(k){return caches.delete(k);}));
       }).catch(function(){});
     }
   } catch(e) { /* private browsing can disable storage */ }
   _boot();
+  // ---- "Install app" button (browsers that support installing) ----
+  var _ar = (localStorage.getItem('quran_app_language') || 'ar') !== 'en';
+  function _bar(id, text, btnText, onBtn) {
+    if (document.getElementById(id) || !document.body) return;
+    var d = document.createElement('div');
+    d.id = id; d.dir = _ar ? 'rtl' : 'ltr';
+    d.style.cssText = 'position:fixed;left:12px;right:12px;bottom:16px;z-index:2147483000;display:flex;align-items:center;gap:10px;' +
+      'padding:12px 14px;border-radius:14px;background:#1a6b3a;color:#fff;font:14px system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25);';
+    var t = document.createElement('span'); t.style.flex = '1'; t.textContent = text;
+    var b = document.createElement('button'); b.textContent = btnText;
+    b.style.cssText = 'border:0;border-radius:10px;padding:8px 14px;background:#fff;color:#1a6b3a;font-weight:bold;font-size:14px;';
+    var x = document.createElement('button'); x.textContent = '\u2715'; x.setAttribute('aria-label', 'close');
+    x.style.cssText = 'border:0;background:transparent;color:#fff;font-size:16px;';
+    b.onclick = function(){ onBtn(); d.remove(); };
+    x.onclick = function(){ d.remove(); if (id === '_inst') try { localStorage.setItem('quran_install_dismissed', String(Date.now())); } catch(e){} };
+    d.appendChild(t); d.appendChild(b); d.appendChild(x);
+    document.body.appendChild(d);
+  }
+  window.__qrBar = _bar;
+  var _standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+  window.addEventListener('beforeinstallprompt', function(ev){
+    ev.preventDefault();
+    var dis = +(localStorage.getItem('quran_install_dismissed') || 0);
+    if (_standalone || Date.now() - dis < 14 * 86400000) return;
+    setTimeout(function(){
+      _bar('_inst', _ar ? 'ثبّت التطبيق على هاتفك ليعمل بدون إنترنت' : 'Install the app on your phone to use it offline',
+        _ar ? '📲 تثبيت' : '📲 Install', function(){ ev.prompt(); });
+    }, 4000);
+  });
+  // ---- "New update available" message ----
+  function _updBar(reg) {
+    _bar('_upd', _ar ? 'يوجد تحديث جديد للتطبيق' : 'A new update is available',
+      _ar ? 'تحديث' : 'Update', function(){
+        if (reg.waiting) reg.waiting.postMessage('skipWaiting');
+        setTimeout(function(){ location.reload(); }, 300);
+      });
+  }
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js').catch(function(){});
+      var hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.register('./sw.js').then(function(reg){
+        if (reg.waiting && hadController) _updBar(reg);
+        reg.addEventListener('updatefound', function(){
+          var nw = reg.installing; if (!nw) return;
+          nw.addEventListener('statechange', function(){
+            if (nw.state === 'installed' && hadController) _updBar(reg);
+          });
+        });
+        setInterval(function(){ reg.update().catch(function(){}); }, 30 * 60000);
+      }).catch(function(){});
     });
   }
+
 })();
 </script>
 </body>
