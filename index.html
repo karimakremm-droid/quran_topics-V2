@@ -31,7 +31,7 @@
   var _p2=[26,164,161,172,123,90,212,247];
   var _p3=[27,13,182,2,128,64,250,6];
   var _p4=[22,59,96,149,72,226,223,181];
-  var _expectedHash = "e8a3227cfdd26c7a7e4150e61f905d9533b3d2fcb7321d7469f91daca2c30a40";
+  var _expectedHash = "8e20e9abb905bdf3cf6324d9ee4bde7fb41d7362bb4dc0fafd5d4010867dece9";
   function _bk(){
     var k=new Uint8Array(32);
     [_p1,_p2,_p3,_p4].forEach(function(seg,si){
@@ -98,7 +98,7 @@
     if (localStorage.getItem('quran_site_version') !== '103') {
       localStorage.setItem('quran_site_version', '103');
       if ('caches' in window) caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){return /^quran-v/.test(k) && k !== 'quran-v103-shell-1';})
+        return Promise.all(keys.filter(function(k){return /^quran-v/.test(k) && k !== 'quran-v103-shell-2';})
           .map(function(k){return caches.delete(k);}));
       }).catch(function(){});
     }
