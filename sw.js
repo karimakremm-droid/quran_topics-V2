@@ -1,5 +1,5 @@
 // Scope-relative offline cache. A new version replaces previous app-owned caches.
-const CACHE = 'quran-v105-shell-2';
+const CACHE = 'quran-v105-shell-4';
 const SCOPE = new URL('./', self.registration.scope).pathname;
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './favicon.ico', './apple-touch-icon.png'];
 self.addEventListener('install', event => {
