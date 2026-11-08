@@ -13,7 +13,7 @@
      app.enc is now gzip-compressed BEFORE encryption and the webfonts were
      moved out of it into ./assets/fonts/*.woff2, so the critical first
      download dropped from ~1.45 MB to ~0.49 MB. -->
-<link rel="preload" as="fetch" href="./app.enc?v=105" crossorigin="anonymous" fetchpriority="high" />
+<link rel="preload" as="fetch" href="./app.enc?v=119" crossorigin="anonymous" fetchpriority="high" />
 <style>
   html,body{height:100%;margin:0;background:#fdf6e3;}
   #_bl{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
@@ -31,7 +31,7 @@
   var _p2=[26,164,161,172,123,90,212,247];
   var _p3=[27,13,182,2,128,64,250,6];
   var _p4=[22,59,96,149,72,226,223,181];
-  var _expectedHash = "c38a5c194be0cd8f67f89c68f2643bfe640034631af2afd2cd5bcf3f3f101557";
+  var _expectedHash = "228335cd9e264fe49639d69c8f83432827bb0be14f5b1b5ade6ec62de2f526cf";
   function _bk(){
     var k=new Uint8Array(32);
     [_p1,_p2,_p3,_p4].forEach(function(seg,si){
@@ -68,7 +68,7 @@
   }
   async function _boot(){
     try{
-      var res = await fetch('./app.enc?v=105', {credentials:'omit', cache:'no-store'});
+      var res = await fetch('./app.enc?v=119', {credentials:'omit', cache:'no-store'});
       if(!res.ok && res.status !== 0) throw new Error('http '+res.status);
       var buf = await res.arrayBuffer();
       if (crypto.subtle && crypto.subtle.digest) {
@@ -144,6 +144,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
       var hadController = !!navigator.serviceWorker.controller;
+      var _rl=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if (hadController && !_rl) { _rl=true; location.reload(); } });
       navigator.serviceWorker.register('./sw.js').then(function(reg){
         if (reg.waiting && hadController) _updBar(reg);
         reg.addEventListener('updatefound', function(){
@@ -152,6 +153,8 @@
             if (nw.state === 'installed' && hadController) _updBar(reg);
           });
         });
+        reg.update().catch(function(){});
+        document.addEventListener('visibilitychange', function(){ if (!document.hidden) reg.update().catch(function(){}); });
         setInterval(function(){ reg.update().catch(function(){}); }, 30 * 60000);
       }).catch(function(){});
     });
